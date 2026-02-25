@@ -93,12 +93,9 @@ Search-Log-Analysis-Pipeline/
 │   └── 03_gold_layer.ipynb               # Business metrics computation
 │
 ├── config/
-│   ├── pipeline_config.py                # Centralized configuration
-│   ├── db_connections.py                 # Database connection configs
-│   └── schemas.py                        # Schema definitions
-│
-├── scripts/
-│   └── setup_source_db.sql               # Source database setup (MySQL/PostgreSQL)
+│   └── pipeline_config.py                # Centralized configuration
+│                      
+│           
 │
 └── README.md                              # Project documentation
 
