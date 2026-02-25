@@ -1,95 +1,22 @@
-# ========================
 # Python
-# ========================
 __pycache__/
-*.py[cod]
+*.pyc
 *.pyo
 *.pyd
-*.egg
-*.egg-info/
-dist/
-build/
-.eggs/
-*.whl
 
-# ========================
-# Virtual Environments
-# ========================
-venv/
-env/
-.env
-.venv/
-
-# ========================
-# Environment & Secrets
-# ========================
-.env
-*.env
-config.ini
-secrets.yaml
-secrets.json
-credentials.json
-
-# MySQL connection strings — NEVER push these
-db_config.py
-connection.py
-
-# ========================
-# Jupyter Notebooks
-# ========================
+# Jupyter / Databricks artifacts
 .ipynb_checkpoints/
-*.ipynb_checkpoints
 
-# ========================
-# Databricks
-# ========================
-.databricks/
-databricks.yml
-*.dbx
-.dbx/
-
-# ========================
-# Delta Lake / Spark
-# ========================
-spark-warehouse/
-derby.log
-metastore_db/
-*.crc
-
-# ========================
-# Data Files — don't push raw data
-# ========================
-*.csv
-*.json
-*.parquet
-*.orc
-*.avro
-
-# Keep sample data only
-!data/sample_search_logs.csv
-
-# ========================
-# Power BI
-# ========================
-*.pbix
-
-# ========================
-# OS Files
-# ========================
+# OS files
 .DS_Store
 Thumbs.db
-desktop.ini
 
-# ========================
-# IDE & Editors
-# ========================
-.vscode/
-.idea/
-*.sublime-project
-*.sublime-workspace
+# Environment files
+.env
 
-# ========================
 # Logs
-# ========================
 *.log
-logs/
+
+# Virtual environment
+venv/
+.env/
