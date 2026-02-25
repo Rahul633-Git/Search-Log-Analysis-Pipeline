@@ -1,173 +1,218 @@
-# 🔍 Search Log Analysis Pipeline - Recommendation Based 
+# 📊 Search Log Analysis & Expansion Intelligence Pipeline
 
-> **End-to-end ETL pipeline using PySpark, Databricks, and Delta Lake (Medallion Architecture) to identify high-demand regions for business expansion based on user search error logs.**
+[![Databricks](https://img.shields.io/badge/Databricks-FF3621?style=for-the-badge&logo=databricks&logoColor=white)](https://databricks.com/)
+[![Apache Spark](https://img.shields.io/badge/Apache_Spark-E25A1C?style=for-the-badge&logo=apache-spark&logoColor=white)](https://spark.apache.org/)
+[![Delta Lake](https://img.shields.io/badge/Delta_Lake-00ADD8?style=for-the-badge&logo=databricks&logoColor=white)](https://delta.io/)
+[![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 
----
-
-## 📌 Project Background
-
-This project is built around a real-world business problem at a transfer/rides company:
-
-When users search for a pickup or dropoff location where the company is **not yet operational**, those searches are logged as errors. Instead of discarding these logs, this pipeline analyzes them to **identify high-demand regions** the business should consider expanding into — turning failed searches into strategic expansion intelligence.
+> **Production-grade ETL pipeline implementing Medallion Architecture to identify high-demand expansion regions from ride-search error logs**
 
 ---
 
-## 🎯 Business Objective
+## 🚀 Overview
 
-- Identify cities/regions with high search demand but no current service coverage
-- Prioritize expansion targets based on search volume
-- Focus on short-haul transfer markets (distance < 60 km) near airports
-- Deliver insights via a Power BI map dashboard for leadership decision-making
+This project demonstrates an **end-to-end data engineering solution** built on **Databricks** using **PySpark** and **Delta Lake**. It implements the industry-standard **Medallion Architecture** (Bronze → Silver → Gold) to process ride-search logs and generate actionable expansion intelligence metrics.
 
----
+The pipeline identifies under-served markets with high demand, enabling data-driven expansion decisions for ride-hailing platforms.
 
-## 🗂️ Dataset
-
-Data sourced from company MySQL database (search error logs).
-
-| Field | Description |
-|-------|-------------|
-| `pickup_location_name` | Name of the pickup location |
-| `pickup_lat` | Latitude of pickup |
-| `pickup_long` | Longitude of pickup |
-| `destination_name` | Name of the destination |
-| `destination_lat` | Latitude of destination |
-| `destination_long` | Longitude of destination |
-| `distance_km` | Distance between pickup and destination |
-| `timezone` | Timezone of the search |
-
-> **Note:** Data is anonymized and used with appropriate permissions. A sample synthetic dataset is provided for demonstration purposes.
+### Key Highlights
+- ✅ **Production-oriented design** with data quality enforcement
+- ✅ **Automated orchestration** via Databricks Workflows
+- ✅ **Version-controlled** with Git integration
+- ✅ **Scheduled daily execution** for batch processing
+- ✅ **Audit-enabled** Bronze layer for traceability
+- ✅ **Business-focused** Gold layer metrics
 
 ---
 
-## 🏗️ Architecture — Medallion (Bronze → Silver → Gold)
+## 🏗️ Architecture
+
+The pipeline follows the **Medallion Architecture** pattern with **flexible data source connectivity**:
+
 ```
-MySQL Database (Raw Search Error Logs)
-        │
-        ▼
-   CSV Export
-        │
-        ▼
-┌─────────────────────────────────┐
-│         BRONZE LAYER            │
-│  Raw ingestion into Delta Lake  │
-│  No transformations applied     │
-└─────────────────────────────────┘
-        │
-        ▼
-┌─────────────────────────────────┐
-│         SILVER LAYER            │
-│  - Drop nulls & fix data types  │
-│  - Filter: distance_km < 60     │
-│  - Flag: airport in location    │
-│  - Exclude live regions         │
-└─────────────────────────────────┘
-        │
-        ▼
-┌─────────────────────────────────┐
-│          GOLD LAYER             │
-│  - Aggregate by city/region     │
-│  - Count searches per region    │
-│  - Rank by search volume        │
-│  - Output expansion suggestions │
-└─────────────────────────────────┘
-        │
-        ▼
-  Power BI Map Dashboard
-  (Suggested expansion regions
-   ranked by search demand)
+┌────────────────────────────────────────────┐
+│         Data Source Options                │
+│  ┌───────────┐  ┌───────┐  ┌────────────┐  │
+│  │ Mock Data │or│ MySQL │or│ PostgreSQL │  │
+│  │ Generator │  │   DB  │  │     DB     │  │
+│  └─────┬─────┘  └────┬──┘  └────┬───────┘  │
+└────────┼─────────────┼──────────┼──────────┘
+         │             │          │
+         └─────────────┴──────────┘
+                       │
+                       ▼
+         ┌─────────────────────────┐
+         │     Bronze Layer        │ ◄── Raw Data Landing (Audit-Enabled)
+         │     (Delta Table)       │     • Schema enforcement
+         └───────────┬─────────────┘     • Ingestion metadata
+                     │                   • Partitioned storage
+                     ▼
+         ┌─────────────────────────┐
+         │     Silver Layer        │ ◄── Data Quality & Transformation
+         │     (Delta Table)       │     • Type casting
+         └───────────┬─────────────┘     • Data validation
+                     │                   • Outlier removal
+                     ▼
+         ┌─────────────────────────┐
+         │      Gold Layer         │ ◄── Business Intelligence
+         │     (Delta Table)       │     • Aggregated metrics
+         └───────────┬─────────────┘     • Expansion signals
+                     │                   • City ranking
+                     ▼
+         ┌─────────────────────────┐
+         │   Analytics/Dashboard   │
+         └─────────────────────────┘
 ```
+
+### 🔌 Data Source Flexibility
+
+This pipeline supports **multiple ingestion patterns**:
+
+| Source | Use Case | Implementation |
+|--------|----------|----------------|
+| **Mock Data Generator** | Development, Testing, Demos | Python synthetic data generation |
+| **MySQL Database** | Production OLTP source | JDBC connector with incremental load |
+| **PostgreSQL Database** | Production OLTP source | JDBC connector with incremental load |
+| **Cloud Storage** | File-based ingestion | S3, ADLS, GCS support |
+
+---
+
+## 📁 Project Structure
+
+```
+Search-Log-Analysis-Pipeline/
+│
+├── notebooks/
+│   ├── 00_data_ingestion/
+│   │   └── mock_data_generator.ipynb  or mysql/postgres_connector   # incase of direct db connection 
+│   │                                                                # here only workring with ~100k mock data 
+│   │   
+│   │
+│   ├── 01_bronze_layer.ipynb             # Raw data landing
+│   ├── 02_silver_layer.ipynb             # Data cleaning & validation
+│   └── 03_gold_layer.ipynb               # Business metrics computation
+│
+├── config/
+│   ├── pipeline_config.py                # Centralized configuration
+│   ├── db_connections.py                 # Database connection configs
+│   └── schemas.py                        # Schema definitions
+│
+├── scripts/
+│   └── setup_source_db.sql               # Source database setup (MySQL/PostgreSQL)
+│
+└── README.md                              # Project documentation
+
+---
+
+
+
+
+
+## ⚙️ Orchestration & Automation
+
+### Databricks Workflow
+
+The pipeline is orchestrated using **Databricks Workflows** with the following DAG:
+
+```
+generate_mock_data
+        ↓
+bronze_layer
+        ↓
+silver_layer
+        ↓
+gold_layer
+```
+
+### Job Configuration
+- **Schedule**: Daily automated execution
+- **Retry policy**: 3 attempts on failure
+- **Compute**: Serverless / Job cluster
+- **Source**: Git-integrated (runs from `main` branch)
+- **Version control**: Each execution tied to specific commit SHA
+
+---
+
+## 🔄 Version Control & CI/CD Readiness
+
+### Git Integration
+- ✅ All notebooks version-controlled in GitHub
+- ✅ Job execution linked to specific commits
+- ✅ Reproducible pipeline runs
+- ✅ Branch-based development workflow
+
+### Production Safety
+- Commit-based execution ensures consistency
+- Rollback capability via Git history
+- Immutable execution artifacts
+
+---
+
+## 🧠 Key Engineering Concepts Demonstrated
+
+- ✅ **Medallion Architecture** – Industry-standard data lakehouse pattern
+- ✅ **Delta Lake** – ACID transactions, time travel, schema evolution
+- ✅ **Multi-Source Ingestion** – Mock data, MySQL, PostgreSQL connectivity
+- ✅ **JDBC Connectivity** – Production database integration
+- ✅ **Incremental Loading** – Watermark-based delta loads
+- ✅ **Schema Enforcement** – Strong typing and validation
+- ✅ **Data Quality Validation** – Automated quality gates
+- ✅ **Window Functions** – Advanced SQL analytics
+- ✅ **Business Metric Engineering** – Translating raw data to insights
+- ✅ **Workflow Orchestration** – Automated DAG execution
+- ✅ **Batch Processing** – Scheduled ETL jobs
+- ✅ **Security Best Practices** – Secrets management
+- ✅ **Version Control** – Git-based development
+- ✅ **Modular Design** – Reusable configuration
+
+---
+
+## 📈 Business Use Case
+
+### Problem Statement
+A ride-hailing company needs to identify which cities to expand into next.
+
+### Solution
+This pipeline analyzes search error logs to:
+1. **Identify** cities with high search demand
+2. **Detect** supply-demand gaps (no service area, no drivers nearby)
+3. **Rank** cities by expansion priority
+4. **Support** data-driven expansion decisions
+
+### Impact
+- 📊 Quantified expansion opportunities
+- 🎯 Prioritized market entry strategy
+- 💰 Optimized resource allocation
 
 ---
 
 ## 🛠️ Tech Stack
 
-| Tool | Purpose |
-|------|---------|
-| **PySpark** | Data cleaning, filtering, transformation |
-| **Databricks** | Pipeline orchestration & notebook environment |
-| **Delta Lake** | Bronze / Silver / Gold storage layers |
-| **MySQL** | Source database (raw search logs) |
-| **SQL** | Aggregation & analytical queries |
-| **Python** | Supporting scripts & logic |
-| **Power BI** | Final map dashboard visualization |
+| Component | Technology |
+|-----------|-----------|
+| **Platform** | Databricks |
+| **Storage** | Delta Lake |
+| **Processing** | Apache Spark (PySpark) |
+| **Orchestration** | Databricks Workflows |
+| **Version Control** | Git / GitHub |
+| **Language** | Python |
+| **Data Sources** | Mock Data / MySQL / PostgreSQL |
+| **Connectivity** | JDBC (MySQL Connector, PostgreSQL Driver) |
+| **Security** | Databricks Secrets |
 
 ---
 
-## 🔄 Pipeline Logic
+## 📊 Sample Output
 
-### Bronze Layer
-- Ingest raw CSV export from MySQL into Databricks
-- Store as-is in Delta table — no transformations
-- Preserves original data for auditability
+### Gold Layer – Top Expansion Candidates
 
-### Silver Layer
-- Remove null values and standardize data types
-- **Filter:** `distance_km < 60` — focus on short-haul transfers
-- **Airport detection:** flag rows where `pickup_location_name` OR `destination_name` contains "airport" (case-insensitive)
-- **Exclusion:** filter out regions where the company is already operational
+| rank | city | total_searches | expansion_signal_count | signal_ratio_pct |
+|------|------|----------------|------------------------|------------------|
+| 1 | Boston | 1250 | 687 | 54.96 |
+| 2 | Austin | 1180 | 623 | 52.80 |
+| 3 | Portland | 1095 | 568 | 51.87 |
+| 4 | Denver | 1032 | 531 | 51.45 |
+| 5 | Seattle | 978 | 487 | 49.79 |
 
-### Gold Layer
-- Group by city/region
-- Count total search logs per region
-- Rank regions by search volume (descending)
-- Output: prioritized list of suggested expansion cities
 
----
 
-## 📊 Output — Power BI Dashboard
-
-The final dashboard includes:
-- 🗺️ **Map visual** — suggested cities plotted across India
-- 📊 **Bar chart** — top regions ranked by search volume
-- 🔍 **Filters** — by region, distance range, airport proximity
-
----
-
-## 📁 Repository Structure
-```
-search-log-pipeline/
-│
-├── data/
-│   └── sample_search_logs.csv
-│
-├── notebooks/
-│   ├── 01_bronze_ingestion.ipynb
-│   ├── 02_silver_transformation.ipynb
-│   └── 03_gold_aggregation.ipynb
-│
-├── scripts/
-│   ├── bronze_layer.py
-│   ├── silver_layer.py
-│   └── gold_layer.py
-│
-├── dashboard/
-│   └── expansion_dashboard.pbix
-│
-└── README.md
-```
-
----
-<!-- 
-## 🚧 Project Status
-
-| Layer | Status |
-|-------|--------|
-| Bronze — Raw Ingestion | 🔄 In Progress |
-| Silver — Cleaning & Filtering | 🔄 In Progress |
-| Gold — Aggregation & Ranking | 📅 Planned |
-| Power BI Dashboard | 📅 Planned |
-| MySQL JDBC Integration (10M+ records) | 📅 Planned |
-
----
-<
-## 🔮 Future Enhancements
-
-- Connect directly to MySQL via **JDBC connector** for 10M+ record production pipeline
-- Add **Airflow** for pipeline orchestration and scheduling
-- Integrate **Azure Data Lake Storage Gen2** for cloud storage layer
-- Add **data quality checks** at each medallion layer
-- Automate dashboard refresh via Power BI Service
-
----
--->
